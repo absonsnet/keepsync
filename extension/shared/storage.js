@@ -392,6 +392,13 @@
   }
 
   detectBrowser() {
+    if (typeof navigator !== 'undefined' && navigator.userAgent) {
+      const ua = navigator.userAgent.toLowerCase();
+      if (ua.includes('firefox')) return 'firefox';
+      if (ua.includes('edg/')) return 'edge';
+      if (ua.includes('chrome')) return 'chrome';
+      if (ua.includes('safari')) return 'safari';
+    }
     if (typeof browser !== 'undefined' && browser.runtime) {
       return 'firefox';
     }
