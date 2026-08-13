@@ -6,7 +6,7 @@ BINARY_NAME := keepsync-server
 SERVER_DIR := server
 EXTENSION_DIR := extension
 DIST_DIR := dist
-VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "v1.0.0-dev")
+VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "v1.0.3-dev")
 
 # Detect OS
 ifeq ($(OS),Windows_NT)
