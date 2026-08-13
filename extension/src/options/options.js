@@ -779,7 +779,14 @@ class OptionsController {
 
   async createPairingCode() {
     const serverUrl = this.elements.serverUrl.value.trim();
-    const email = this.elements.email.value.trim() || 'dev@local';
+    const config = await this.storage.getConfig();
+    let email = this.elements.email?.value?.trim();
+    if (!email && config.email) {
+      email = config.email;
+    }
+    if (!email) {
+      email = 'dev@local';
+    }
 
     if (!this.validateServerUrl(serverUrl)) {
       return;
