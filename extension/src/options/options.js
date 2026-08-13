@@ -759,8 +759,9 @@ class OptionsController {
 
       const deviceToken = response.device_token || response.deviceToken;
       const deviceId = response.device_id || response.deviceId;
+      const email = response.email;
 
-      await this.saveConfiguration({ serverUrl, deviceName, deviceToken });
+      await this.saveConfiguration({ serverUrl, deviceName, deviceToken, email });
       await this.storage.setDeviceInfo({
         id: deviceId,
         name: deviceName,
@@ -828,9 +829,10 @@ class OptionsController {
       const response = await this.apiClient.registerDeviceWithPairing(code, deviceName, browserName);
       const deviceToken = response.device_token || response.deviceToken;
       const deviceId = response.device_id || response.deviceId;
+      const email = response.email;
 
       this.apiClient.setDeviceToken(deviceToken);
-      await this.saveConfiguration({ serverUrl, deviceName, deviceToken });
+      await this.saveConfiguration({ serverUrl, deviceName, deviceToken, email });
       await this.storage.setDeviceInfo({
         id: deviceId,
         name: deviceName,
@@ -868,9 +870,10 @@ class OptionsController {
       const response = await this.apiClient.activateInvite(token, deviceName, browserName);
       const deviceToken = response.device_token || response.deviceToken;
       const deviceId = response.device_id || response.deviceId;
+      const email = response.email;
 
       this.apiClient.setDeviceToken(deviceToken);
-      await this.saveConfiguration({ serverUrl, deviceName, deviceToken });
+      await this.saveConfiguration({ serverUrl, deviceName, deviceToken, email });
       await this.storage.setDeviceInfo({
         id: deviceId,
         name: deviceName,
