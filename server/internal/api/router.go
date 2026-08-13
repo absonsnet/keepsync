@@ -215,8 +215,7 @@ func (r *Router) authMiddleware(next http.Handler) http.Handler {
 
 // Health check endpoint
 func (r *Router) healthCheck(w http.ResponseWriter, req *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{
+	writeJSON(w, map[string]string{
 		"status":  "ok",
 		"version": Version,
 	})
