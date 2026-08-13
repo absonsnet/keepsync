@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "KeepSync",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Sync tabs across Chrome and Firefox browsers with self-hosted server",
 
   "permissions": [
@@ -10,25 +10,21 @@
     "alarms",
     "downloads",
     "bookmarks",
-    "history"
+    "history",
+    "offscreen"
   ],
 
   "host_permissions": [
-    "http://localhost/*",
+    "http://localhost/*"
+  ],
+
+  "optional_host_permissions": [
     "https://*/*",
     "http://*/*"
   ],
 
   "background": {
-    "scripts": [
-      "shared/logger.js",
-      "shared/api-client.js",
-      "shared/storage.js",
-      "src/background/sync-manager.js",
-      "src/background/tab-manager.js",
-      "src/background/bookmark-manager.js",
-      "src/background/background.js"
-    ]
+    "service_worker": "src/background/service-worker.js"
   },
 
   "icons": {
@@ -54,18 +50,5 @@
   },
 
   "author": "KeepSync",
-  "homepage_url": "https://github.com/lachlanallison/keepsync",
-
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "tabsync@keepsync.com",
-      "strict_min_version": "140.0",
-      "data_collection_permissions": {
-        "required": ["bookmarksInfo", "browsingActivity"]
-      }
-    },
-    "gecko_android": {
-      "strict_min_version": "142.0"
-    }
-  }
+  "homepage_url": "https://github.com/lachlanallison/keepsync"
 }
