@@ -58,7 +58,7 @@ build: server extension
 .PHONY: server
 server:
 	@echo "Building Go server..."
-	cd $(SERVER_DIR) && CGO_ENABLED=1 go build -ldflags "-X main.version=$(VERSION)" -o $(BINARY_NAME)$(BINARY_EXT) ./cmd
+	cd $(SERVER_DIR) && CGO_ENABLED=1 go build -ldflags "-X keepsync-server/internal/api.Version=$(VERSION)" -o $(BINARY_NAME)$(BINARY_EXT) ./cmd
 
 .PHONY: extension
 extension:

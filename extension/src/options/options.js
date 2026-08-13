@@ -221,6 +221,7 @@ class OptionsController {
   }
 
   async initialize() {
+    this.injectExtensionVersion();
     // Load storage-driven state before tab clicks are wired: `setupTabs` runs after
     // `consumeInitialOptionsTab`, otherwise a fast click (e.g. Tabs) during the
     // awaits below could be overwritten when we later apply `optionsOpenTab`
@@ -237,6 +238,41 @@ class OptionsController {
     await this.updateDeviceList();
     await this.refreshBookmarkStatusLine();
     await this.refreshDiagnostics();
+  }
+
+  async injectExtensionVersion() {
+    const manifest = (typeof ext !== 'undefined' && ext.runtime && ext.runtime.getManifest) 
+      ? ext.runtime.getManifest() : null;
+    const version = manifest ? `v${manifest.version}` : 'v1.0.3';
+    
+    // Update header version
+    const extVersionEl = document.querySelector('.ext-version');
+    if (extVersionEl) extVersionEl.textContent = `Extension: ${version}`;
+    
+    // Update diagnostic version
+    const diagVersion = document.getElementById('extensionVersion');
+    if (diagVersion) diagVersion.textContent = version.replace('v', '');
+    
+    // Fetch server version
+    const serverVersionEl = document.querySelector('.server-version');
+    if (serverVersionEl) {
+      try {
+        const config = await this.storage.getConfig();
+        if (config && config.serverUrl) {
+          this.apiClient.setServerUrl(config.serverUrl);
+          const health = await this.apiClient.healthCheck();
+          if (health && health.version) {
+            serverVersionEl.textContent = `Server: ${health.version}`;
+          } else {
+            serverVersionEl.textContent = 'Server: online';
+          }
+        } else {
+          serverVersionEl.textContent = 'Server: unconnected';
+        }
+      } catch (err) {
+        serverVersionEl.textContent = 'Server: offline';
+      }
+    }
   }
 
   /**

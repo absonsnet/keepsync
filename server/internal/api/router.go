@@ -33,6 +33,9 @@ var (
 	requestCount        int64
 	errorCount          int64
 	requestDurationSum  int64
+
+	// Version is injected at build time via -ldflags "-X keepsync-server/internal/api.Version=..."
+	Version = "development"
 )
 
 // NewRouter creates a new API router
@@ -213,7 +216,10 @@ func (r *Router) authMiddleware(next http.Handler) http.Handler {
 // Health check endpoint
 func (r *Router) healthCheck(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	json.NewEncoder(w).Encode(map[string]string{
+		"status":  "ok",
+		"version": Version,
+	})
 }
 
 // Basic metrics endpoint
