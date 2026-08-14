@@ -262,7 +262,20 @@ class OptionsController {
           this.apiClient.setServerUrl(config.serverUrl);
           const health = await this.apiClient.healthCheck();
           if (health && health.version) {
-            serverVersionEl.textContent = `Server: ${health.version}`;
+            let srvVer = health.version;
+            const match = srvVer.match(/^v?(\d+\.\d+\.\d+)(?:-(.+))?/);
+            if (match) {
+              srvVer = `v${match[1]}`;
+              if (match[2]) {
+                const metaMatch = match[2].match(/^(\d+)-g([a-f0-9]+(?:-dirty)?)$/);
+                if (metaMatch) {
+                  srvVer += ` (${metaMatch[2]})`;
+                } else {
+                  srvVer += ` (${match[2]})`;
+                }
+              }
+            }
+            serverVersionEl.textContent = `Server: ${srvVer}`;
           } else {
             serverVersionEl.textContent = 'Server: online';
           }
