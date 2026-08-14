@@ -187,10 +187,13 @@ func (s *Service) ActivateWithInvite(token, deviceName, browser string) (*models
 		return nil, fmt.Errorf("failed to consume invite token: %w", err)
 	}
 
+	email, _ := s.getUserEmail(authToken.UserID)
+
 	return &models.ActivateResponse{
 		DeviceToken: deviceToken,
 		UserID:      authToken.UserID,
 		DeviceID:    device.ID,
+		Email:       email,
 		ExpiresAt:   expiresAt,
 	}, nil
 }
@@ -277,10 +280,13 @@ func (s *Service) ActivateDevice(token, deviceName, browser string) (*models.Act
 		return nil, fmt.Errorf("failed to revoke magic token: %w", err)
 	}
 
+	email, _ := s.getUserEmail(authToken.UserID)
+
 	return &models.ActivateResponse{
 		DeviceToken: deviceToken,
 		UserID:      authToken.UserID,
 		DeviceID:    device.ID,
+		Email:       email,
 		ExpiresAt:   expiresAt,
 	}, nil
 }
@@ -334,10 +340,13 @@ func (s *Service) RegisterDeviceWithPairing(code, deviceName, browser string) (*
 		return nil, fmt.Errorf("failed to revoke pairing token: %w", err)
 	}
 
+	email, _ := s.getUserEmail(authToken.UserID)
+
 	return &models.ActivateResponse{
 		DeviceToken: deviceToken,
 		UserID:      authToken.UserID,
 		DeviceID:    device.ID,
+		Email:       email,
 		ExpiresAt:   expiresAt,
 	}, nil
 }
@@ -394,6 +403,7 @@ func (s *Service) DevLogin(email, deviceName, browser string) (*models.ActivateR
 		DeviceToken: deviceToken,
 		UserID:      user.ID,
 		DeviceID:    device.ID,
+		Email:       email,
 		ExpiresAt:   expiresAt,
 	}, nil
 }
@@ -553,6 +563,16 @@ func generateNumericCode(length int) (string, error) {
 func hashToken(token string) string {
 	hash := sha256.Sum256([]byte(token))
 	return hex.EncodeToString(hash[:])
+}
+
+// getUserEmail looks up the email for a user by their ID.
+func (s *Service) getUserEmail(userID string) (string, error) {
+	var email string
+	err := s.db.QueryRow(`SELECT email FROM users WHERE id = ?`, userID).Scan(&email)
+	if err != nil {
+		return "", err
+	}
+	return email, nil
 }
 
 func (s *Service) createOrGetUser(email string) (*models.User, error) {

@@ -238,6 +238,7 @@ type ActivateResponse struct {
 	DeviceToken string    `json:"device_token"`
 	UserID      string    `json:"user_id"`
 	DeviceID    string    `json:"device_id"`
+	Email       string    `json:"email,omitempty"`
 	ExpiresAt   time.Time `json:"expires_at"`
 }
 

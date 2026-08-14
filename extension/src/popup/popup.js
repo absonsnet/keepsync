@@ -756,7 +756,7 @@ class PopupController {
   }
 
   async performManualSync() {
-    this.showLoading('Syncing tabs...');
+    this.showLoading('Syncing all...');
     try {
       const response = await ext.runtime.sendMessage({ type: 'MANUAL_SYNC' });
       if (response.success) {

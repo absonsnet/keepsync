@@ -372,6 +372,15 @@ class BackgroundService {
       switch (message.type) {
         case 'MANUAL_SYNC': {
           const result = await this.syncManager.performSync({ full: true });
+          // Also sync bookmarks so a single button syncs everything
+          if (this.bookmarkManager && this.bookmarkManager.hasBookmarksAPI()) {
+            try {
+              await this.bookmarkManager.push();
+              await this.bookmarkManager.runSync();
+            } catch (e) {
+              logger.warn('Bookmark sync during manual sync:', e);
+            }
+          }
           sendResponse({ success: true, result });
           break;
         }
