@@ -243,7 +243,7 @@ class OptionsController {
   async injectExtensionVersion() {
     const manifest = (typeof ext !== 'undefined' && ext.runtime && ext.runtime.getManifest) 
       ? ext.runtime.getManifest() : null;
-    const version = manifest ? `v${manifest.version}` : 'v1.0.3';
+    const version = manifest ? `v${manifest.version}` : 'v1.0.7';
     
     // Update header version
     const extVersionEl = document.querySelector('.ext-version');
