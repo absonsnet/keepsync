@@ -109,6 +109,8 @@ class OptionsController {
 
       // Sync settings
       enableSync: document.getElementById('enableSync'),
+      enableBookmarkSync: document.getElementById('enableBookmarkSync'),
+      enableHistorySync: document.getElementById('enableHistorySync'),
       syncInterval: document.getElementById('syncInterval'),
       enableRealtime: document.getElementById('enableRealtime'),
       enableNotifications: document.getElementById('enableNotifications'),
@@ -585,6 +587,8 @@ class OptionsController {
     this.elements.histTableStatus?.addEventListener('change', onHistTableFilter);
 
     this.elements.enableSync?.addEventListener('change', () => this.saveSyncSettings());
+    this.elements.enableBookmarkSync?.addEventListener('change', () => this.saveSyncSettings());
+    this.elements.enableHistorySync?.addEventListener('change', () => this.saveSyncSettings());
     this.elements.syncInterval?.addEventListener('change', () => this.saveSyncSettings());
     this.elements.enableRealtime?.addEventListener('change', () => this.saveSyncSettings());
     this.elements.enableNotifications?.addEventListener('change', () => this.saveSyncSettings());
@@ -672,6 +676,12 @@ class OptionsController {
 
     if (this.elements.enableSync) {
       this.elements.enableSync.checked = config.syncEnabled !== false;
+    }
+    if (this.elements.enableBookmarkSync) {
+      this.elements.enableBookmarkSync.checked = config.bookmarkSyncEnabled !== false;
+    }
+    if (this.elements.enableHistorySync) {
+      this.elements.enableHistorySync.checked = config.historySyncEnabled !== false;
     }
     if (this.elements.syncInterval) {
       this.elements.syncInterval.value = String(config.syncInterval || 5000);
@@ -1405,12 +1415,20 @@ class OptionsController {
   }
 
   async saveSyncSettings() {
+    const bookmarkSyncEnabled = this.elements.enableBookmarkSync?.checked ?? true;
     const updates = {
       syncEnabled: this.elements.enableSync?.checked ?? true,
+      bookmarkSyncEnabled,
+      historySyncEnabled: this.elements.enableHistorySync?.checked ?? true,
       syncInterval: parseInt(this.elements.syncInterval?.value || '5000', 10),
       enableRealtime: this.elements.enableRealtime?.checked ?? true,
       enableNotifications: this.elements.enableNotifications?.checked ?? true
     };
+
+    // Keep the Bookmarks tab checkbox in sync with the Sync tab toggle
+    if (this.elements.bookmarkSyncEnabled) {
+      this.elements.bookmarkSyncEnabled.checked = bookmarkSyncEnabled;
+    }
 
     await this.saveConfiguration(updates);
     this.ensureAlarmSchedule(updates);
@@ -3131,14 +3149,19 @@ class OptionsController {
 
   async saveBookmarkSettings() {
     const current = await this.storage.getConfig();
+    const bmEnabled = this.elements.bookmarkSyncEnabled?.checked !== false;
     const next = {
       ...current,
-      bookmarkSyncEnabled: this.elements.bookmarkSyncEnabled?.checked !== false,
+      bookmarkSyncEnabled: bmEnabled,
       bookmarkSyncDirection: this.elements.bookmarkSyncDirection?.value || 'bidirectional',
       bookmarkConflictAction: this.elements.bookmarkConflictAction?.value || 'prompt',
       bookmarkAutoResolution: this.elements.bookmarkAutoResolution?.value || 'server_wins',
       bookmarkDeletePolicy: this.elements.bookmarkDeletePolicy?.value || 'match_server'
     };
+    // Keep the Sync tab checkbox in sync with the Bookmarks tab toggle
+    if (this.elements.enableBookmarkSync) {
+      this.elements.enableBookmarkSync.checked = bmEnabled;
+    }
     await this.saveConfiguration(next);
     await this.updateBookmarkBrowserSection();
   }

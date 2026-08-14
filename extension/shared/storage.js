@@ -29,7 +29,9 @@
       /** match_server (remove locals missing from server) | keep_local */
       bookmarkDeletePolicy: 'match_server',
       /** When true (default), after sync recover gaps using browser history API. */
-      historyBackfillEnabled: true
+      historyBackfillEnabled: true,
+      /** Whether to sync history (GET /history cache + browser history backfill). */
+      historySyncEnabled: true
     });
   }
 

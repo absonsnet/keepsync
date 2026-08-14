@@ -238,34 +238,41 @@
 
     // Step 4: Cache recent /history for the options page. Throttle: opening one
     // page should not N× GET /history; refresh when events land or every 2 min.
-    const needHistory =
-      this._forceFullSync ||
-      eventsApplied > 0 ||
-      !this._lastHistoryCacheAt ||
-      Date.now() - this._lastHistoryCacheAt > 120000;
-    if (needHistory) {
-      try {
-        const hist = await this.apiClient.getHistory({ limit: 200 });
-        const n = Array.isArray(hist?.items) ? hist.items.length : 0;
-        this._lastHistoryCacheAt = Date.now();
-        if (n > 0) {
-          await this.storage.setHistoryEventsCache(hist.items);
-          logger.info('[KeepSync:history] doSync:cache updated', n, 'row(s) from GET /history');
-        } else {
-          logger.warn(
-            '[KeepSync:history] doSync:GET /history returned 0 items — if History is empty, visit a few http(s) pages and check POST /tabs/events (applied) in service worker'
-          );
+    // Skip entirely when history sync is disabled.
+    const histConfig = await this.storage.getConfig();
+    const historySyncEnabled = histConfig.historySyncEnabled !== false;
+    if (historySyncEnabled) {
+      const needHistory =
+        this._forceFullSync ||
+        eventsApplied > 0 ||
+        !this._lastHistoryCacheAt ||
+        Date.now() - this._lastHistoryCacheAt > 120000;
+      if (needHistory) {
+        try {
+          const hist = await this.apiClient.getHistory({ limit: 200 });
+          const n = Array.isArray(hist?.items) ? hist.items.length : 0;
+          this._lastHistoryCacheAt = Date.now();
+          if (n > 0) {
+            await this.storage.setHistoryEventsCache(hist.items);
+            logger.info('[KeepSync:history] doSync:cache updated', n, 'row(s) from GET /history');
+          } else {
+            logger.warn(
+              '[KeepSync:history] doSync:GET /history returned 0 items — if History is empty, visit a few http(s) pages and check POST /tabs/events (applied) in service worker'
+            );
+          }
+        } catch (e) {
+          logger.warn('[KeepSync:history] doSync: cache refresh failed', e);
         }
-      } catch (e) {
-        logger.warn('[KeepSync:history] doSync: cache refresh failed', e);
+      } else if (typeof logger !== 'undefined' && logger.info) {
+        logger.info('[KeepSync:sync] doSync: skip GET /history (throttled, no new events this sync)');
       }
-    } else if (typeof logger !== 'undefined' && logger.info) {
-      logger.info('[KeepSync:sync] doSync: skip GET /history (throttled, no new events this sync)');
-    }
 
-    await this.maybeBackfillBrowserHistory({
-      skipBecauseTabQueueFlushed: skipHistoryBackfillThisSync
-    });
+      await this.maybeBackfillBrowserHistory({
+        skipBecauseTabQueueFlushed: skipHistoryBackfillThisSync
+      });
+    } else if (typeof logger !== 'undefined' && logger.info) {
+      logger.info('[KeepSync:sync] doSync: skip history (historySyncEnabled=false)');
+    }
 
     return result;
   }

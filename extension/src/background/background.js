@@ -371,14 +371,22 @@ class BackgroundService {
     try {
       switch (message.type) {
         case 'MANUAL_SYNC': {
-          const result = await this.syncManager.performSync({ full: true });
-          // Also sync bookmarks so a single button syncs everything
-          if (this.bookmarkManager && this.bookmarkManager.hasBookmarksAPI()) {
+          const config = await this.storage.getConfig();
+          const result = {};
+          // Sync tabs if enabled
+          if (config.syncEnabled !== false) {
+            const tabResult = await this.syncManager.performSync({ full: true });
+            Object.assign(result, tabResult);
+          }
+          // Sync bookmarks if enabled
+          if (config.bookmarkSyncEnabled !== false && this.bookmarkManager && this.bookmarkManager.hasBookmarksAPI()) {
             try {
               await this.bookmarkManager.push();
               await this.bookmarkManager.runSync();
+              result.bookmarksSynced = true;
             } catch (e) {
               logger.warn('Bookmark sync during manual sync:', e);
+              result.bookmarksSynced = false;
             }
           }
           sendResponse({ success: true, result });

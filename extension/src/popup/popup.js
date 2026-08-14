@@ -756,7 +756,13 @@ class PopupController {
   }
 
   async performManualSync() {
-    this.showLoading('Syncing all...');
+    const config = await this.storage.getConfig();
+    const parts = [];
+    if (config.syncEnabled !== false) parts.push('tabs');
+    if (config.bookmarkSyncEnabled !== false) parts.push('bookmarks');
+    if (config.historySyncEnabled !== false) parts.push('history');
+    const label = parts.length > 0 ? `Syncing ${parts.join(', ')}...` : 'Syncing...';
+    this.showLoading(label);
     try {
       const response = await ext.runtime.sendMessage({ type: 'MANUAL_SYNC' });
       if (response.success) {
