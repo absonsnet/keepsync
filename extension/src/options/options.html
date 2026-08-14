@@ -291,7 +291,7 @@
 
         <div class="section">
           <h2>Storage quota</h2>
-          <p class="section-lede">Server-side limit for your synced account. The bar uses a running quota counter; the breakdown below counts real <code>tab_history</code> rows and each row&rsquo;s stored size estimate (URL/title/favicon, not full SQLite overhead).</p>
+          <p class="section-lede">Server-side storage limit for your synced account.</p>
 
           <div class="quota-display" id="quotaDisplay">
             <div class="quota-bar">
@@ -301,25 +301,6 @@
               <span id="quotaUsed">0 KB</span> of <span id="quotaTotal">0 KB</span> used
             </div>
           </div>
-
-          <details id="quotaBreakdownDetails" class="quota-breakdown">
-            <summary>Tab history — row count &amp; recent event sizes</summary>
-            <p class="help-text" id="quotaHistorySummary"></p>
-            <p class="help-text value-bad" id="quotaDriftNote" style="display: none"></p>
-            <div class="quota-events-scroll">
-              <table class="data-table quota-events-table" id="quotaRecentEventsTable">
-                <thead>
-                  <tr>
-                    <th>When (UTC)</th>
-                    <th>Type</th>
-                    <th>Est. size</th>
-                    <th>URL</th>
-                  </tr>
-                </thead>
-                <tbody id="quotaRecentEventsBody"></tbody>
-              </table>
-            </div>
-          </details>
 
           <div class="form-actions">
             <button id="refreshQuotaBtn" class="secondary-btn">Refresh quota</button>
@@ -739,6 +720,25 @@
             <button id="viewErrorLogBtn" class="secondary-btn">View error log</button>
             <button id="clearErrorLogBtn" class="secondary-btn">Clear error log</button>
           </div>
+
+          <details id="quotaBreakdownDetails" class="quota-breakdown" style="margin-top: 16px;">
+            <summary>Tab history — row count &amp; recent event sizes</summary>
+            <p class="help-text" id="quotaHistorySummary"></p>
+            <p class="help-text value-bad" id="quotaDriftNote" style="display: none"></p>
+            <div class="quota-events-scroll">
+              <table class="data-table quota-events-table" id="quotaRecentEventsTable">
+                <thead>
+                  <tr>
+                    <th>When (UTC)</th>
+                    <th>Type</th>
+                    <th>Est. size</th>
+                    <th>URL</th>
+                  </tr>
+                </thead>
+                <tbody id="quotaRecentEventsBody"></tbody>
+              </table>
+            </div>
+          </details>
         </div>
 
       </div>
