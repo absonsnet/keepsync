@@ -86,8 +86,14 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
+html {
+  width: 380px;
+  max-width: 380px;
+  overflow-x: hidden;
+}
 body {
   width: 380px;
+  max-width: 380px;
   max-height: 600px;
   font-family: var(--font-sans);
   font-size: 13px;

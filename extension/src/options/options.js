@@ -2519,6 +2519,15 @@ class OptionsController {
     }
 
     const existing = await this.storage.getRemoteTabs();
+    // DB reset detection: no overlapping device IDs means stale cache
+    if (existing && existing.length > 0 && incomingDevices && incomingDevices.length > 0) {
+      const cachedIds = new Set(existing.map((d) => d.device_id));
+      const anyOverlap = incomingDevices.some((d) => cachedIds.has(d.device_id));
+      if (!anyOverlap) {
+        await this.storage.setRemoteTabs(incomingDevices);
+        return;
+      }
+    }
     const byId = new Map((existing || []).map((device) => [device.device_id, device]));
     (incomingDevices || []).forEach((device) => {
       byId.set(device.device_id, device);

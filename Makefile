@@ -6,7 +6,7 @@ BINARY_NAME := keepsync-server
 SERVER_DIR := server
 EXTENSION_DIR := extension
 DIST_DIR := dist
-VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "v0.0.0-dev")
+VERSION := $(shell git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0-dev")
 COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 # Detect OS

@@ -214,14 +214,28 @@
         const remoteTabsResponse = await this.apiClient.getCurrentTabs(sincePull);
         this._lastRemoteTabsAt = Date.now();
         if (remoteTabsResponse && remoteTabsResponse.devices) {
-          const mergedDevices = await this.mergeRemoteTabs(remoteTabsResponse.devices, sincePull);
+          let incoming = remoteTabsResponse.devices;
+          // Server DB reset detection: incremental pull returns 0 devices
+          // but we have cached entries — retry with since=0 for a full pull.
+          if (incoming.length === 0 && sincePull > 0) {
+            const cached = (await this.storage.getRemoteTabs()) || [];
+            if (cached.length > 0) {
+              const fullResponse = await this.apiClient.getCurrentTabs(0);
+              if (fullResponse && fullResponse.devices) {
+                incoming = fullResponse.devices;
+                // Reset server version since the server clearly has a lower version space
+                this.lastServerVersion = 0;
+              }
+            }
+          }
+          const mergedDevices = await this.mergeRemoteTabs(incoming, incoming === remoteTabsResponse.devices ? sincePull : 0);
           result.remoteTabs = mergedDevices.reduce(
             (total, device) => total + device.tabs.length,
             0
           );
 
           this.updateServerVersion(
-            this.getMaxVersion(remoteTabsResponse.devices, previousServerVersion)
+            this.getMaxVersion(incoming, previousServerVersion)
           );
 
           if (typeof logger !== 'undefined' && logger.log) {
@@ -482,6 +496,16 @@
     }
 
     const existing = await this.storage.getRemoteTabs();
+    // If incoming devices share no IDs with cached devices, the server DB
+    // was likely reset — replace cache entirely instead of accumulating stale entries.
+    if (existing && existing.length > 0 && incomingDevices && incomingDevices.length > 0) {
+      const cachedIds = new Set(existing.map((d) => d.device_id));
+      const anyOverlap = incomingDevices.some((d) => cachedIds.has(d.device_id));
+      if (!anyOverlap) {
+        await this.storage.setRemoteTabs(incomingDevices);
+        return incomingDevices;
+      }
+    }
     const byId = new Map((existing || []).map((device) => [device.device_id, device]));
     (incomingDevices || []).forEach((device) => {
       byId.set(device.device_id, device);
