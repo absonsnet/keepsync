@@ -479,6 +479,9 @@
    * correct for incremental updates but wrong for an empty local cache.
    */
   async getSinceVersionForRemoteTabPull(lastVersion) {
+    if (this._forceFullSync) {
+      return 0;
+    }
     const existing = (await this.storage.getRemoteTabs()) || [];
     const hasCached =
       existing.length > 0 &&
