@@ -265,7 +265,7 @@ class OptionsController {
           const health = await this.apiClient.healthCheck();
           if (health && health.version) {
             let srvVer = health.version;
-            const match = srvVer.match(/^v?(\d+\.\d+\.\d+)(?:-(.+))?/);
+            const match = srvVer.match(/^v?(\d+\.\d+\.\d+)(?:[-+ ](.+))?$/);
             if (match) {
               srvVer = `v${match[1]}`;
               if (match[2]) {
@@ -273,7 +273,11 @@ class OptionsController {
                 if (metaMatch) {
                   srvVer += ` (${metaMatch[2]})`;
                 } else {
-                  srvVer += ` (${match[2]})`;
+                  if (match[2].startsWith('(') && match[2].endsWith(')')) {
+                    srvVer += ` ${match[2]}`;
+                  } else {
+                    srvVer += ` (${match[2]})`;
+                  }
                 }
               }
             }

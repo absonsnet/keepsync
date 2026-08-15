@@ -1,6 +1,6 @@
 {
   "name": "keepsync-extension",
-  "version": "1.1.5",
+  "version": "1.1.7",
   "description": "Cross-browser tab sync extension (release packaging only; local dev does not need npm)",
   "private": true,
   "scripts": {
