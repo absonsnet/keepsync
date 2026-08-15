@@ -3774,6 +3774,7 @@ class OptionsController {
     if (!tb) {
       return;
     }
+    tb.textContent = ''; // Clear previous rows
     const rows = this._filterSessionsForTable(this._histSessionsData);
     if (!rows.length) {
       const emptyTr = document.createElement('tr');
