@@ -583,19 +583,45 @@ class BackgroundService {
       return;
     }
     this._pairingClearedForRevoke = true;
-    logger.warn('Device access revoked on server; clearing local pairing', source || '');
+    logger.warn('Device access revoked on server; clearing local pairing and cached data', source || '');
     this.stopRealtimeListener();
     try {
       const cfg = await this.storage.getConfig();
       await this.storage.setConfig({ ...cfg, deviceToken: '' });
-      await this.storage.setDeviceInfo({ id: null });
+      await this.storage.setDeviceInfo({ id: null, name: '', registeredAt: null });
       this.apiClient.setDeviceToken(null);
       this.deviceToken = null;
-      const prev = (await this.storage.getSyncState()) || {};
+
+      // Reset ALL server-derived state so a DB wipe gives a true clean slate.
       await this.storage.setSyncState({
-        ...prev,
+        lastSyncTime: null,
+        lastSyncResult: null,
+        lastServerVersion: 0,
+        serverReachable: null,
+        lastHeartbeatAt: null,
         lastServerError: 'This device was unpaired on the server. Open Settings to pair again.'
       });
+      await this.storage.setRemoteTabs([]);
+      await this.storage.setTabSnapshot([]);
+      await this.storage.setQueuedEvents([]);
+      await this.storage.setHistoryEventsCache([]);
+      await this.storage.setCachedQuota(null);
+      await this.storage.setCachedDevicesList(null);
+      await this.storage.setBookmarkSyncState({
+        lastServerVersion: 0,
+        localDirty: false,
+        lastSyncedAt: null,
+        lastError: null,
+        pendingConflict: null
+      });
+
+      // Reset in-memory sync manager state
+      if (this.syncManager) {
+        this.syncManager.lastServerVersion = 0;
+        this.syncManager._lastSnapshotSignature = null;
+        this.syncManager._lastRemoteTabsAt = 0;
+        this.syncManager._lastHistoryCacheAt = 0;
+      }
     } catch (error) {
       logger.warn('Failed to clear credentials after revocation:', error);
     }
