@@ -36,6 +36,8 @@ var (
 
 	// Version is injected at build time via -ldflags "-X keepsync-server/internal/api.Version=..."
 	Version = "development"
+	// Commit is the short git SHA, injected at build time.
+	Commit = "unknown"
 )
 
 // NewRouter creates a new API router
@@ -215,9 +217,13 @@ func (r *Router) authMiddleware(next http.Handler) http.Handler {
 
 // Health check endpoint
 func (r *Router) healthCheck(w http.ResponseWriter, req *http.Request) {
+	v := Version
+	if Commit != "" && Commit != "unknown" {
+		v = fmt.Sprintf("%s (%s)", Version, Commit)
+	}
 	writeJSON(w, map[string]string{
 		"status":  "ok",
-		"version": Version,
+		"version": v,
 	})
 }
 

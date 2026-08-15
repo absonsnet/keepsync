@@ -7,6 +7,7 @@ SERVER_DIR := server
 EXTENSION_DIR := extension
 DIST_DIR := dist
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo "v0.0.0-dev")
+COMMIT := $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 
 # Detect OS
 ifeq ($(OS),Windows_NT)
@@ -58,7 +59,7 @@ build: server extension
 .PHONY: server
 server:
 	@echo "Building Go server..."
-	cd $(SERVER_DIR) && CGO_ENABLED=1 go build -ldflags "-X keepsync-server/internal/api.Version=$(VERSION)" -o $(BINARY_NAME)$(BINARY_EXT) ./cmd
+	cd $(SERVER_DIR) && CGO_ENABLED=1 go build -ldflags "-X keepsync-server/internal/api.Version=$(VERSION) -X keepsync-server/internal/api.Commit=$(COMMIT)" -o $(BINARY_NAME)$(BINARY_EXT) ./cmd
 
 .PHONY: extension
 extension:
