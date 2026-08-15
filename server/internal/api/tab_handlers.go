@@ -86,7 +86,8 @@ func (r *Router) uploadSnapshot(w http.ResponseWriter, req *http.Request) {
 	snapshotHashCount := make(map[string]int)
 
 	// Insert new current tabs
-	for _, tab := range request.Tabs {
+	for i := range request.Tabs {
+		tab := request.Tabs[i] // local copy per iteration
 		// Skip restricted URLs
 		if r.isRestrictedURL(tab.URL) {
 			continue
