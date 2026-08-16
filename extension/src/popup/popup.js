@@ -410,6 +410,10 @@ class PopupController {
       }
 
       const searchTerm = this.elements.deviceSearch?.value.trim().toLowerCase() || '';
+      
+      // Clear right before appending to prevent async race conditions
+      devicesList.querySelectorAll('.device-item').forEach((item) => item.remove());
+      
       let renderedDevices = 0;
       for (const device of otherDevices) {
         const el = this.createDeviceElement(device, { searchTerm, maxTabs, showFavicons });
