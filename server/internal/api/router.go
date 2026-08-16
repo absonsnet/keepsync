@@ -374,3 +374,32 @@ func writeError(w http.ResponseWriter, message string, statusCode int) {
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(map[string]string{"error": message})
 }
+
+// parseFilterTime attempts to parse common frontend timestamp strings (ISO 8601, HTML5 date/datetime)
+// and returns a native time.Time object. This forces the SQLite driver to format it correctly
+// for space-separated timestamp string comparisons in the database.
+func parseFilterTime(val string) interface{} {
+	if val == "" {
+		return val
+	}
+	// JS new Date().toISOString()
+	if t, err := time.Parse(time.RFC3339Nano, val); err == nil {
+		return t
+	}
+	if t, err := time.Parse(time.RFC3339, val); err == nil {
+		return t
+	}
+	// HTML5 datetime-local
+	if t, err := time.Parse("2006-01-02T15:04:05", val); err == nil {
+		return t
+	}
+	if t, err := time.Parse("2006-01-02T15:04", val); err == nil {
+		return t
+	}
+	// HTML5 date
+	if t, err := time.Parse("2006-01-02", val); err == nil {
+		return t
+	}
+	// Fallback
+	return val
+}

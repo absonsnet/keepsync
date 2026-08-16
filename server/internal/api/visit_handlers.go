@@ -40,11 +40,11 @@ func (r *Router) getHistoryVisits(w http.ResponseWriter, req *http.Request) {
 	}
 	if from != "" {
 		query += " AND occurred_at >= ?"
-		args = append(args, from)
+		args = append(args, parseFilterTime(from))
 	}
 	if to != "" {
 		query += " AND occurred_at <= ?"
-		args = append(args, to)
+		args = append(args, parseFilterTime(to))
 	}
 	query += " ORDER BY occurred_at ASC"
 

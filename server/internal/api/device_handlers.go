@@ -325,24 +325,17 @@ func (r *Router) getHistoryForUser(userID, deviceID, fromStr, toStr string, limi
 	// Add time range filters
 	if fromStr != "" {
 		query += " AND occurred_at >= ?"
-		args = append(args, fromStr)
+		args = append(args, parseFilterTime(fromStr))
 	}
 	if toStr != "" {
 		query += " AND occurred_at <= ?"
-		args = append(args, toStr)
+		args = append(args, parseFilterTime(toStr))
 	}
 
 	// Add cursor for pagination
 	if cursor != "" {
-		// Attempt to parse cursor as time.Time so the driver formats it natively
-		if t, err := time.Parse(time.RFC3339Nano, cursor); err == nil {
-			query += " AND occurred_at < ?"
-			args = append(args, t)
-		} else {
-			// Fallback to string comparison if parsing fails (legacy cursor format)
-			query += " AND occurred_at < ?"
-			args = append(args, cursor)
-		}
+		query += " AND occurred_at < ?"
+		args = append(args, parseFilterTime(cursor))
 	}
 
 	query += " ORDER BY occurred_at DESC LIMIT ?"

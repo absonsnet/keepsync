@@ -173,19 +173,19 @@ GROUP BY t.user_id, t.device_id, t.tab_correlation_id`
 	}
 	if openedFrom != "" {
 		outer += " AND z.opened_at >= ?"
-		queryArgs = append(queryArgs, openedFrom)
+		queryArgs = append(queryArgs, parseFilterTime(openedFrom))
 	}
 	if openedTo != "" {
 		outer += " AND z.opened_at <= ?"
-		queryArgs = append(queryArgs, openedTo)
+		queryArgs = append(queryArgs, parseFilterTime(openedTo))
 	}
 	if closedFrom != "" {
 		outer += " AND z.closed_at IS NOT NULL AND z.closed_at >= ?"
-		queryArgs = append(queryArgs, closedFrom)
+		queryArgs = append(queryArgs, parseFilterTime(closedFrom))
 	}
 	if closedTo != "" {
 		outer += " AND z.closed_at IS NOT NULL AND z.closed_at <= ?"
-		queryArgs = append(queryArgs, closedTo)
+		queryArgs = append(queryArgs, parseFilterTime(closedTo))
 	}
 	switch status {
 	case "open":
